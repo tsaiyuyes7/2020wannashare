@@ -1,19 +1,39 @@
-import React,{useState} from "react";
+import React,{useState,useEffect} from "react";
 import {View, Text,TouchableOpacity,Image,ScrollView,StyleSheet,ImageBackground} from "react-native"
 import {Button} from "react-native-elements";
 import fooddata from "../json/fooddetail.json";
 import { round } from "react-native-reanimated";
 import MapView,{Marker} from "react-native-maps";
 import Confirm from "../component/Confirm.js"
+import * as firebase from 'firebase'; 
+
 
 const FooddetailScreen = ({route}) =>{
-
+    const [useruid, setUid] = useState("");
     const { name } = route.params;
     const { food } = route.params;
-    console.log(`${name}`);
+    const { userphoto } = route.params;
+    const { img } = route.params;
     const [showModal, setShowModal] = useState(false);
     const onCLoseModal = () => {
         setShowModal(false);
+    };
+
+
+
+    function addunfinishorder() {
+        firebase.database().ref(firebase.auth().currentUser.uid).set({
+          name:name,
+          food:food,
+          userphoto:userphoto,
+          img:img
+        });
+      }
+
+    const AcceptOrder = () => {
+        addunfinishorder();
+        setShowModal(false);
+        
     };
     const onOpenModal = () => {
         setShowModal(true);
@@ -100,7 +120,7 @@ const FooddetailScreen = ({route}) =>{
                 <Confirm
                 title="確定下單?"
                 visible={showModal}
-                onAccept={onCLoseModal}
+                onAccept={AcceptOrder}
                 onDecline={onCLoseModal}
                 />
             </View>
